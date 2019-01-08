@@ -1,6 +1,5 @@
 mount
 boot
-*Arch*
-*arch*
+*.tgz
 filesystem.qcow2
 
