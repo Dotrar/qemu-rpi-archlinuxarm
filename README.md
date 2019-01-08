@@ -16,7 +16,7 @@ the setup file will install a desktop file, you can specify `-d` to output to co
 
 ### Manual process
 
-The start command I use to start-up archlinux arm is:
+The start command I use to start-up archlinux arm is: (note, some filenames differ)
 
 ```sh
 #:: startup

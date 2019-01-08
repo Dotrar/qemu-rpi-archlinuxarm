@@ -9,14 +9,14 @@ seperator(){
 	echo "-----------------------------------------"
 }
 usage(){
-	echo "qemu rpi archlinuxarm setup script"
+	echo "qemu rpi archlinuxarm setup script - archarm only"
 	echo
 	echo "Will automatically set ./ to emulator folder and install desktop file"
 	echo
 	echo "Usage:"
 	echo 
 	echo " -d --desktop | Print desktop file to stdout instead of making file"
-	echo " -H --hide    | Store emulator files in ~/.rpi-archarm (tidier)"
+	echo " -H --hide    | Store emulator files in ~/.rpi-emulator (tidier)"
 }
 
 note(){
@@ -44,10 +44,11 @@ if [ "$(id -u)" = "0" ]; then
 	echo "Do not run as root, we'll ask for root when needed"
 	exit 1
 fi
+
 #-- Variables define -----------------------------------------------------------------
 
-desktopfile=~/Desktop/qemu-archarm.desktop
-emulatordir=./
+desktopfile="$HOME/Desktop/qemu-archarm.desktop"
+emulatordir="$(pwd)"
 execpath="$(pwd)/run"
 
 #--------------------------------- Params
@@ -57,8 +58,8 @@ while [  "$1" != "" ]; do
 			unset desktopfile
 			;;
 		-H | --hide )
-			emulatordir="$HOME/.rpi-archarm"
-			execpath="$HOME/.rpi-archarm/run"
+			emulatordir="$HOME/.rpi-emulator"
+			execpath="$HOME/.rpi-emulator/run"
 			;;
 		-h | --help ) 
 			usage
@@ -82,9 +83,57 @@ sudo apt-get install qemu-system-arm | prepend "[install]"
 
 note "Setting up directory structure"
 
-#make dir
-# make images
-# download files
-# 
+mkdir -p "$emulatordir"
+cd "$emulatordir"
+
+note "Now in $emulatordir"
+
+mkdir -p boot mount
+wget -O archlatest.tgz http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-2-latest.tar.gz  | prepend "[emu]"
+
+set -x
+qemu-img create -f qcow2 filesystem.qcow2 6G
+sudo modprobe nbd max_part=6
+sudo qemu-nbd -c /dev/nbd0 filesystem.qcow2
+sudo partprobe /dev/nbd0
+set +x
+
+note "Formatting new image as one mkfs.ext4 partition"
+
+sudo parted -a optimal /dev/nbd0 mklabel msdos mkpart primary 0% 100% | prepend "[build fs]"
+sudo mkfs.ext4 /dev/nbd0p1 | prepend "[build fs]"
+
+note "Mounting new image and extracting latest arch into filesystem"
+
+echo "This could take a while, so go grab a coffee and play a game or something... "
+echo 
+
+set -x
+sudo mount -t ext4 -o loop /dev/nbd0p1 ./mount
+sudo bsdtar -xpf archlatest.tgz -C ./mount
+set +x
+
+note "Taking files from latest arch to host"
+
+#note about overlays, not needed, but worth checking out some of these
+targets=(kernel7.img bcm2709-2-b.dtb initramfs-linux.img)
+
+for f in ${targets[@]}; do
+	cp -frv ./mount/boot/${i} ./boot
+done
+
+note "Syncing fs changes"
+
+sync
+
+note "Finishing up"
+#be sure to unmount before we finish
+
+sudo umount ./mount
+sudo killall qemu-nbd
+
+note "Enjoy! use $(pwd)/run to run, or look in your menus for QEMU ARM" 
+
+
 
 # vi: ft=sh
