@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# Setup script
+
+prepend(){
+	while read line; do echo "$1 $line"; done
+}
+seperator(){
+	echo "-----------------------------------------"
+}
+usage(){
+	echo "qemu rpi archlinuxarm setup script"
+	echo
+	echo "Will automatically set ./ to emulator folder and install desktop file"
+	echo
+	echo "Usage:"
+	echo 
+	echo " -d --desktop | Print desktop file to stdout instead of making file"
+	echo " -H --hide    | Store emulator files in ~/.rpi-archarm (tidier)"
+}
+
+note(){
+	seperator
+	echo $1
+	seperator
+}
+
+desktopfile(){
+	cat <<- __EOF__
+[Desktop Entry]
+Type=Application
+Name=QEMU Arch-ARM
+GenericName=QEMU Arch-ARM
+Comment=Run ArchlinuxARM for RPI in QEMU 
+Exec=$execpath
+Icon=
+Terminal=false
+__EOF__
+}
+
+# root check 
+#-------------------------------------------------------------------
+if [ "$(id -u)" = "0" ]; then
+	echo "Do not run as root, we'll ask for root when needed"
+	exit 1
+fi
+#-- Variables define -----------------------------------------------------------------
+
+desktopfile=~/Desktop/qemu-archarm.desktop
+emulatordir=./
+execpath="$(pwd)/run"
+
+#--------------------------------- Params
+while [  "$1" != "" ]; do
+	case $1 in
+		-d | --desktop ) 
+			unset desktopfile
+			;;
+		-H | --hide )
+			emulatordir="$HOME/.rpi-archarm"
+			execpath="$HOME/.rpi-archarm/run"
+			;;
+		-h | --help ) 
+			usage
+			exit
+			;;
+		* )
+			echo "Not sure what $1"
+			usage
+			exit
+			;;
+	esac
+	shift
+done
+
+#begin install:
+note "Ensuring correct software is installed:\n
+running sudo apt-get update && apt-get install qemu-system-arm"
+
+sudo apt-get update | prepend "[update]"
+sudo apt-get install qemu-system-arm | prepend "[install]"
+
+note "Setting up directory structure"
+
+#make dir
+# make images
+# download files
+# 
+
+# vi: ft=sh
