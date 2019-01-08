@@ -14,6 +14,17 @@ cd qemu-rpi-archlinuxarm
 
 the setup file will install a desktop file, you can specify `-d` to output to console, thereby avoiding the desktop file install
 
+**Important** Read the [Known Issues](#known-issues) section
+
+![](doc/images/rpi.png)
+![](doc/images/arch.png)
+
+### Current work arounds;
+
+* After `./run` you must switch to `serial0` to log in via root; that's as far as i got.
+
+If anyone wants to help put networking in the run script; then we'd be golden.
+
 ### Manual process
 
 The start command I use to start-up archlinux arm is: (note, some filenames differ)
@@ -45,5 +56,7 @@ copy the kernel, dtb, and the initramfs out.
 
 ## Known issues
 
+_Still submit patches to get the issues resolved_
+
 * Serial causes kernel panics, but can be the only way to get log-in, drivers crash but kernel keeps chugging.
-* No Network install.
+* No Network yet.

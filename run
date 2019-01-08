@@ -5,7 +5,7 @@ qemu-system-arm \
  -cpu arm1176 \
  -M raspi2 \
  -dtb ./boot/bcm2709-rpi-2-b.dtb\
- -sd Oracle.img \
+ -sd filesystem.qcow2 \
  -initrd ./boot/initramfs-linux.img\
  -append "root=/dev/mmcblk0p1 rw rootwait console=ttyAMA0,9600 console=tty1 selinux=0 plymouth.enable=0 smsc95xx.turbo_mode=N dwc_otg.lpm_enable=0 elevator=noop" \
 

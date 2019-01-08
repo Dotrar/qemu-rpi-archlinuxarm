@@ -75,7 +75,7 @@ while [  "$1" != "" ]; do
 done
 
 #begin install:
-note "Ensuring correct software is installed:\n
+note "Ensuring correct software is installed:
 running sudo apt-get update && apt-get install qemu-system-arm"
 
 sudo apt-get update | prepend "[update]"
@@ -89,7 +89,8 @@ cd "$emulatordir"
 note "Now in $emulatordir"
 
 mkdir -p boot mount
-wget -O archlatest.tgz http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-2-latest.tar.gz  | prepend "[emu]"
+wget -c -O archlatest.tgz http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-2-latest.tar.gz 2>&1 \
+| prepend "[fetch]"
 
 set -x
 qemu-img create -f qcow2 filesystem.qcow2 6G
@@ -119,7 +120,7 @@ note "Taking files from latest arch to host"
 targets=(kernel7.img bcm2709-2-b.dtb initramfs-linux.img)
 
 for f in ${targets[@]}; do
-	cp -frv ./mount/boot/${i} ./boot
+	cp -frv ./mount/boot/${f} ./boot/
 done
 
 note "Syncing fs changes"
